@@ -2,8 +2,8 @@ package com.example.alexander_topilskii.internetradio.ui.adapters;
 
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +13,6 @@ import com.example.alexander_topilskii.internetradio.R;
 import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.ui.interfaces.AdapterCallback;
-import com.example.alexander_topilskii.internetradio.ui.interfaces.StationListAdapterInterface;
 
 public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<StationsListCursorAdapter.ViewHolder> {
     private AdapterCallback callback;
@@ -42,19 +41,17 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
         }
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements StationListAdapterInterface {
+    class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView source;
+        boolean isCurrent = false;
         Station station;
 
         ViewHolder(View view) {
             super(view);
             name = (TextView) itemView.findViewById(R.id.name_field);
             source = (TextView) itemView.findViewById(R.id.source_field);
-            view.setOnClickListener(v -> {
-                Log.v("GGGG", station.getSource() + " " + station.getName() + " " + station.isCurrent());
-                callback.itemClick(station);
-            });
+            view.setOnClickListener(v -> callback.itemClick(station));
             view.setOnLongClickListener(v -> {
                 callback.itemLongClick(station);
                 return false;
@@ -70,14 +67,7 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
         }
 
         void setStation(Station station) {
-//            if (station.isCurrent()) {
-//                this.source.setBackgroundColor(232);
-//            }
-        }
-
-        @Override
-        public void setCurrentStation(int id) {
-
+            this.station = station;
         }
     }
 }

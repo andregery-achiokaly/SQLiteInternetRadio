@@ -27,7 +27,6 @@ public class SQLDataBase implements DataBase {
         Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
 
         if (cursor != null) {
-            cursor.moveToFirst();
             return cursor;
         } else {
             throw new NoStationsException("Cursor is null");

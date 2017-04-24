@@ -31,6 +31,7 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
     RecyclerView recyclerView;
     @BindView(R.id.play_button)
     FloatingActionButton playButton;
+    StationsListCursorAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,8 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
 
     @Override
     public void setListStation(Cursor stations) {
-        recyclerView.setAdapter(new StationsListCursorAdapter(this, stations));
+        adapter = new StationsListCursorAdapter(this, stations);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override

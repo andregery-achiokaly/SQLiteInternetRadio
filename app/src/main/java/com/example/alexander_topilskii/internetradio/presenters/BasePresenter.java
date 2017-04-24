@@ -134,7 +134,6 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @Override
     public void onPause(Context context) {
         radioVisualizer.stop();
-        dataBase.closeDataBase();
         if (player != null) player.setPlayerCallbackListener(null);
         context.unbindService(radioServiceConnection);
     }

@@ -8,13 +8,16 @@ abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder> ext
     private Cursor cursor;
     private boolean dataValid;
     private int rowIdColumn;
+    private NotifyingDataSetObserver dataSetObserver;
 
     CursorRecyclerViewAdapter(Cursor cursor) {
         this.cursor = cursor;
         dataValid = cursor != null;
         rowIdColumn = dataValid ? this.cursor.getColumnIndex("_id") : -1;
+
+        dataSetObserver = new NotifyingDataSetObserver();
         if (this.cursor != null) {
-            this.cursor.registerDataSetObserver(new NotifyingDataSetObserver());
+            this.cursor.registerDataSetObserver(dataSetObserver);
         }
     }
 
@@ -44,10 +47,10 @@ abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder> ext
     @Override
     public void onBindViewHolder(VH viewHolder, int position) {
         if (!dataValid) {
-            throw new IllegalStateException("this should only be called when the cursor is valid");
+            throw new IllegalStateException("This should only be called when the cursor is valid");
         }
         if (!cursor.moveToPosition(position)) {
-            throw new IllegalStateException("couldn't move cursor to position " + position);
+            throw new IllegalStateException("Couldn't move cursor to position " + position);
         }
         onBindViewHolder(viewHolder, cursor);
     }
@@ -66,5 +69,29 @@ abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHolder> ext
             dataValid = false;
             notifyDataSetChanged();
         }
+    }
+
+    public Cursor swapCursor(Cursor newCursor) {
+        if (newCursor == cursor) {
+            return null;
+        }
+        final Cursor oldCursor = cursor;
+        if (oldCursor != null && dataSetObserver != null) {
+            oldCursor.unregisterDataSetObserver(dataSetObserver);
+        }
+        cursor = newCursor;
+        if (cursor != null) {
+            if (dataSetObserver != null) {
+                cursor.registerDataSetObserver(dataSetObserver);
+            }
+            rowIdColumn = newCursor.getColumnIndexOrThrow("_id");
+            dataValid = true;
+            notifyDataSetChanged();
+        } else {
+            rowIdColumn = -1;
+            dataValid = false;
+            notifyDataSetChanged();
+        }
+        return oldCursor;
     }
 }
