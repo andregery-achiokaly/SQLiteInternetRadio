@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.OnDataBaseChangedListener;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBase;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
@@ -42,10 +43,19 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     public BasePresenter(Context context) {
         radioServiceConnection = new RadioServiceConnection();
-        dataBase = new SQLDataBase(new SQLDataBaseHelper(context).getReadableDatabase());
+        dataBase = new SQLDataBase(new SQLDataBaseHelper(context).getReadableDatabase(), getOnDataBaseChangedListener());
         playerCallbackListener = getPlayerCallbackListener();
         radioVisualizer = new RadioVisualizer();
         onDialogResultListener = getOnDialogResultListener(((MainActivity) context).getSupportFragmentManager());
+    }
+
+    @NonNull
+    private OnDataBaseChangedListener getOnDataBaseChangedListener() {
+        return () -> {
+            if (getView() != null) {
+                getView().setListStation(dataBase.getStations());
+            }
+        };
     }
 
     @NonNull
@@ -57,7 +67,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
             }
 
             @Override
-            public void onDeleteResult(int id) {
+            public void onDeleteResult(int id) throws NoStationsException {
                 dataBase.deleteStation(id);
             }
 
@@ -66,7 +76,13 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
                 try {
                     Station station = dataBase.getStation(id);
                     EditStationDialog editStationDialog = EditStationDialog.newInstance(id, station.getName(), station.getSource());
-                    editStationDialog.setOnChangeDialogResultListener((id1, name, source) -> dataBase.editStation(id, name, source));
+                    editStationDialog.setOnChangeDialogResultListener((id1, name, source) -> {
+                        try {
+                            dataBase.editStation(id, name, source);
+                        } catch (NoStationsException e) {
+                            e.printStackTrace();
+                        }
+                    });
                     editStationDialog.show(fragmentManager, TAG_EDIT_STATION_DIALOG);
                 } catch (NoStationsException e) {
                     e.printStackTrace();
@@ -87,7 +103,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     }
 
     @Override
-    public void stationClick(Station station) {
+    public void stationClick(Station station) throws NoStationsException {
         dataBase.changeCurrentStations(station.getId());
         if (player != null) {
             if (currentStation == station) player.changeState(currentStation);
@@ -146,7 +162,13 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @Override
     public void addStationClick(MainActivity activity) {
         AddStationDialog changeStationDialog = AddStationDialog.newInstance();
-        changeStationDialog.setOnAddDialogResultListener((name, source) -> dataBase.addStation(name, source));
+        changeStationDialog.setOnAddDialogResultListener((name, source) -> {
+            try {
+                dataBase.addStation(name, source);
+            } catch (NoStationsException e) {
+                e.printStackTrace();
+            }
+        });
         changeStationDialog.show(activity.getSupportFragmentManager(), TAG_ADD_STATION_DIALOG);
     }
 

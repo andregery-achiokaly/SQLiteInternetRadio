@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.alexander_topilskii.internetradio.R;
+import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.player.State;
 import com.example.alexander_topilskii.internetradio.presenters.BasePresenter;
@@ -82,7 +83,7 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
     }
 
     @Override
-    public void itemClick(Station station) {
+    public void itemClick(Station station) throws NoStationsException {
         presenter.stationClick(station);
     }
 

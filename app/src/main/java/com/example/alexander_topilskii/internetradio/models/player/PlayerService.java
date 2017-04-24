@@ -29,7 +29,7 @@ public class PlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mockModel = new SQLDataBase(new SQLDataBaseHelper(getApplicationContext()).getReadableDatabase());
+        mockModel = new SQLDataBase(new SQLDataBaseHelper(getApplicationContext()).getReadableDatabase(), null);
         notification = new RadioNotification(getApplicationContext(), "f").getNotification();
         startForeground(RadioNotification.ID, notification);
     }

@@ -3,11 +3,12 @@ package com.example.alexander_topilskii.internetradio.presenters.interfaces;
 
 import android.content.Context;
 
+import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.ui.activitys.MainActivity;
 
 public interface BasePresenterInterface {
-    void stationClick(Station station);
+    void stationClick(Station station) throws NoStationsException;
 
     void stationLongClick(MainActivity context, Station station);
 

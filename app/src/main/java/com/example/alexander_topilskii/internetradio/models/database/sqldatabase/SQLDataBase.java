@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.OnDataBaseChangedListener;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper.STATION_KEY_ID;
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper.STATION_KEY_IS_CURRENT;
@@ -16,10 +20,12 @@ import static com.example.alexander_topilskii.internetradio.models.database.sqld
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper.TABLE_STATIONS;
 
 public class SQLDataBase implements DataBase {
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
+    private List<OnDataBaseChangedListener> listeners = new LinkedList<>();
 
-    public SQLDataBase(SQLiteDatabase db) {
+    public SQLDataBase(SQLiteDatabase db, OnDataBaseChangedListener listener) {
         this.db = db;
+        this.listeners.add(listener);
     }
 
     @Override
@@ -34,23 +40,26 @@ public class SQLDataBase implements DataBase {
     }
 
     @Override
-    public void changeCurrentStations(int id) {
+    public void changeCurrentStations(int id) throws NoStationsException {
         db.execSQL("UPDATE " + TABLE_STATIONS + " SET " + STATION_KEY_IS_CURRENT + " = 0 WHERE " + STATION_KEY_IS_CURRENT + " = 1");
         db.execSQL("UPDATE " + TABLE_STATIONS + " SET " + STATION_KEY_IS_CURRENT + " = 1 WHERE " + STATION_KEY_ID + " = " + id);
+        for (OnDataBaseChangedListener listener : listeners) if (listener != null) listener.onDataBaseChanged();
     }
 
     @Override
-    public void deleteStation(int id) {
+    public void deleteStation(int id) throws NoStationsException {
         db.delete(TABLE_STATIONS, STATION_KEY_ID + " = " + id, null);
+        for (OnDataBaseChangedListener listener : listeners) if (listener != null) listener.onDataBaseChanged();
     }
 
     @Override
-    public void addStation(String name, String source) {
+    public void addStation(String name, String source) throws NoStationsException {
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_IS_CURRENT, 0);
         cv.put(STATION_KEY_NAME, name);
         cv.put(STATION_KEY_SOURCE, source);
         db.insert(TABLE_STATIONS, null, cv);
+        for (OnDataBaseChangedListener listener : listeners) if (listener != null) listener.onDataBaseChanged();
     }
 
     @Override
@@ -106,11 +115,12 @@ public class SQLDataBase implements DataBase {
     }
 
     @Override
-    public void editStation(int id, String name, String source) {
+    public void editStation(int id, String name, String source) throws NoStationsException {
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_NAME, name);
         cv.put(STATION_KEY_SOURCE, source);
         db.update(TABLE_STATIONS, cv, STATION_KEY_ID + " = ?", new String[]{id + ""});
+        for (OnDataBaseChangedListener listener : listeners) if (listener != null) listener.onDataBaseChanged();
     }
 
     @Override

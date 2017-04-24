@@ -2,6 +2,7 @@ package com.example.alexander_topilskii.internetradio.ui.adapters;
 
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +50,13 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
             super(view);
             name = (TextView) itemView.findViewById(R.id.name_field);
             source = (TextView) itemView.findViewById(R.id.source_field);
-            view.setOnClickListener(v -> callback.itemClick(station));
+            view.setOnClickListener(v -> {
+                try {
+                    callback.itemClick(station);
+                } catch (NoStationsException e) {
+                    e.printStackTrace();
+                }
+            });
             view.setOnLongClickListener(v -> {
                 callback.itemLongClick(station);
                 return false;
@@ -66,6 +73,10 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
 
         void setStation(Station station) {
             this.station = station;
+            if (station.isCurrent()) {
+                this.name.setTextColor(Color.BLUE);
+                this.source.setTextColor(Color.BLUE);
+            }
         }
     }
 }
