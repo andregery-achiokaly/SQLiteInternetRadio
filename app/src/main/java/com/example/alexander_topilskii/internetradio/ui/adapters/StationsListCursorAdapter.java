@@ -2,7 +2,6 @@ package com.example.alexander_topilskii.internetradio.ui.adapters;
 
 
 import android.database.Cursor;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +43,6 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
     class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
         private final TextView source;
-        boolean isCurrent = false;
         Station station;
 
         ViewHolder(View view) {
