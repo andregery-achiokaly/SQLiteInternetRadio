@@ -56,18 +56,18 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @NonNull
     private ResultListener getResultListener() {
         return new ResultListener() {
-                @Override
-                public void stationsResult(Cursor cursor) {
-                    if (getView() != null) {
-                        getView().setListStation(cursor);
-                    }
+            @Override
+            public void stationsResult(Cursor cursor) {
+                if (getView() != null) {
+                    getView().setListStation(cursor);
                 }
+            }
 
-                @Override
-                public void currentStationResult(Station station) {
-                    currentStation = station;
-                }
-            };
+            @Override
+            public void currentStationResult(Station station) {
+                currentStation = station;
+            }
+        };
     }
 
     @NonNull

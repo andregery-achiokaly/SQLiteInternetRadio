@@ -73,6 +73,4 @@ class SQLDataBaseLoader extends AsyncTaskLoader<Object> {
         super.onStartLoading();
         forceLoad();
     }
-
-
 }

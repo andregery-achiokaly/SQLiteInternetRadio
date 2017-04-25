@@ -70,13 +70,15 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
     @Override
     public void changeState(Station station) {
         currentState = State.IS_WAIT;
-        listener.setPlayerStates(-1, State.IS_WAIT);
-        if (mediaPlayer == null) initPlayer(station.getSource());
-        else {
-            if (mediaPlayer.isPlaying()) {
-                pause();
-            } else {
-                play();
+        if (station != null) {
+            listener.setPlayerStates(-1, State.IS_WAIT);
+            if (mediaPlayer == null) initPlayer(station.getSource());
+            else {
+                if (mediaPlayer.isPlaying()) {
+                    pause();
+                } else {
+                    play();
+                }
             }
         }
     }

@@ -29,6 +29,7 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        sleep();
         db.execSQL("create table " + TABLE_STATIONS +
                 "(" +
                 STATION_KEY_ID + " integer primary key, " +
@@ -40,7 +41,17 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
         addFirstStation(db);
     }
 
+    private void sleep() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void addFirstStation(SQLiteDatabase db) {
+        sleep();
+
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_IS_CURRENT, 1);
         cv.put(STATION_KEY_NAME, "MusicRadio");
@@ -50,6 +61,8 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        sleep();
+
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_IS_CURRENT, 0);
         cv.put(STATION_KEY_NAME, "Jamfm");
@@ -59,6 +72,8 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public Cursor getStations() {
+        sleep();
+
         Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
         if (cursor != null) {
             return cursor;
@@ -68,17 +83,23 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public void changeCurrentStations(int id) {
+        sleep();
+
         db.execSQL("UPDATE " + TABLE_STATIONS + " SET " + STATION_KEY_IS_CURRENT + " = 0 WHERE " + STATION_KEY_IS_CURRENT + " = 1");
         db.execSQL("UPDATE " + TABLE_STATIONS + " SET " + STATION_KEY_IS_CURRENT + " = 1 WHERE " + STATION_KEY_ID + " = " + id);
     }
 
     @Override
     public void deleteStation(int id) {
+        sleep();
+
         db.delete(TABLE_STATIONS, STATION_KEY_ID + " = " + id, null);
     }
 
     @Override
     public void addStation(String name, String source) {
+        sleep();
+
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_IS_CURRENT, 0);
         cv.put(STATION_KEY_NAME, name);
@@ -88,6 +109,8 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
         @Override
         public Station getCurrentStation () {
+            sleep();
+
             Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
 
             if (cursor != null) {
@@ -114,6 +137,8 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
         @Override
         public void editStation ( int id, String name, String source){
+            sleep();
+
             ContentValues cv = new ContentValues();
             cv.put(STATION_KEY_NAME, name);
             cv.put(STATION_KEY_SOURCE, source);
