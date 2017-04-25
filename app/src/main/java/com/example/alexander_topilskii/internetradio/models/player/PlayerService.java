@@ -21,7 +21,6 @@ import static com.example.alexander_topilskii.internetradio.ui.notification.Radi
 public class PlayerService extends Service {
     private Player player = new RadioPlayer();
     private Notification notification;
-    private SQLiteDataBaseInteractor dataBaseInteractor;
 
     @Override
     public void onCreate() {

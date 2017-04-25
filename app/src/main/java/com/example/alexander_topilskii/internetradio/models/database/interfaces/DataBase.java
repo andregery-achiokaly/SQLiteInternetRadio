@@ -16,7 +16,5 @@ public interface DataBase {
 
     Station getCurrentStation();
 
-    Station getStation(int id);
-
     void editStation(int id, String name, String source);
 }

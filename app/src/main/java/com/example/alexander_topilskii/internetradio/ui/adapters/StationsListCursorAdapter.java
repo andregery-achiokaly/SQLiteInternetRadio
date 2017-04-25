@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.alexander_topilskii.internetradio.R;
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.ui.interfaces.AdapterCallback;
 
@@ -30,15 +29,11 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-        try {
             Station station = StationItem.fromCursor(cursor);
 
             viewHolder.setName(station.getName());
             viewHolder.setSource(station.getSource());
             viewHolder.setStation(station);
-        } catch (NoStationsException e) {
-            e.printStackTrace();
-        }
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -50,13 +45,7 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
             super(view);
             name = (TextView) itemView.findViewById(R.id.name_field);
             source = (TextView) itemView.findViewById(R.id.source_field);
-            view.setOnClickListener(v -> {
-                try {
-                    callback.itemClick(station);
-                } catch (NoStationsException e) {
-                    e.printStackTrace();
-                }
-            });
+            view.setOnClickListener(v -> callback.itemClick(station));
             view.setOnLongClickListener(v -> {
                 callback.itemLongClick(station);
                 return false;

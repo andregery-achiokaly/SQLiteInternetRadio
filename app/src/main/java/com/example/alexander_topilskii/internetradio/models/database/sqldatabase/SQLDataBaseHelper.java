@@ -6,7 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
@@ -18,7 +17,6 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
     public static final String STATION_KEY_NAME = "KEY_NAME";
     public static final String STATION_KEY_SOURCE = "KEY_SOURCE";
     private SQLiteDatabase db;
-
 
     private static final int DATABASE_VERSION = 6;
     private static final String DATABASE_NAME = SQLDataBaseHelper.class.getSimpleName();
@@ -61,13 +59,9 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public Cursor getStations() {
-        Log.v("GGG", "FFFFF5");
         Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
-
         if (cursor != null) {
             return cursor;
-        } else {
-//            throw new NoStationsException("Cursor is null");
         }
         return null;
     }
@@ -92,66 +86,37 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
         db.insert(TABLE_STATIONS, null, cv);
     }
 
-    @Override
-    public Station getCurrentStation() {
-        Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
+        @Override
+        public Station getCurrentStation () {
+            Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
 
-        if (cursor != null) {
-            boolean isEmpty = !cursor.moveToFirst();
-//            if (isEmpty) throw new NoStationsException("Station list is empty!");
+            if (cursor != null) {
+                cursor.moveToFirst();
 
-            int nameIndex = cursor.getColumnIndex(STATION_KEY_NAME);
-            int ageIndex = cursor.getColumnIndex(STATION_KEY_SOURCE);
-            int idIndex = cursor.getColumnIndex(STATION_KEY_ID);
-            int isCurrentIndex = cursor.getColumnIndex(STATION_KEY_IS_CURRENT);
+                int nameIndex = cursor.getColumnIndex(STATION_KEY_NAME);
+                int ageIndex = cursor.getColumnIndex(STATION_KEY_SOURCE);
+                int idIndex = cursor.getColumnIndex(STATION_KEY_ID);
+                int isCurrentIndex = cursor.getColumnIndex(STATION_KEY_IS_CURRENT);
 
-            do {
-                if (cursor.getInt(isCurrentIndex) == 1) {
-                    Station station = new Station(cursor.getInt(idIndex),
-                            cursor.getString(nameIndex),
-                            cursor.getString(ageIndex),
-                            true);
-                    cursor.close();
-                    return station;
-                }
-            } while (cursor.moveToNext());
-
-//            throw new NoStationsException("No current station Exception");
+                do {
+                    if (cursor.getInt(isCurrentIndex) == 1) {
+                        Station station = new Station(cursor.getInt(idIndex),
+                                cursor.getString(nameIndex),
+                                cursor.getString(ageIndex),
+                                true);
+                        cursor.close();
+                        return station;
+                    }
+                } while (cursor.moveToNext());
+            }
+            return null;
         }
-//        throw new NoStationsException("Cursor is null");
-        return null;
-    }
 
-    @Override
-    public Station getStation(int id) {
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_STATIONS + " WHERE " + STATION_KEY_ID + "=" + id, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            boolean isEmpty = !cursor.moveToFirst();
-//            if (isEmpty) throw new NoStationsException("Station list is empty!");
-
-            int nameIndex = cursor.getColumnIndex(STATION_KEY_NAME);
-            int ageIndex = cursor.getColumnIndex(STATION_KEY_SOURCE);
-            int idIndex = cursor.getColumnIndex(STATION_KEY_ID);
-            int isCurrentIndex = cursor.getColumnIndex(STATION_KEY_IS_CURRENT);
-
-            Station station = new Station(cursor.getInt(idIndex),
-                    cursor.getString(nameIndex),
-                    cursor.getString(ageIndex),
-                    cursor.getInt(isCurrentIndex) == 1);
-            cursor.close();
-            return station;
-        } else {
-//            throw new NoStationsException("No founded station");
+        @Override
+        public void editStation ( int id, String name, String source){
+            ContentValues cv = new ContentValues();
+            cv.put(STATION_KEY_NAME, name);
+            cv.put(STATION_KEY_SOURCE, source);
+            db.update(TABLE_STATIONS, cv, STATION_KEY_ID + " = ?", new String[]{id + ""});
         }
-        return null;
     }
-
-    @Override
-    public void editStation(int id, String name, String source) {
-        ContentValues cv = new ContentValues();
-        cv.put(STATION_KEY_NAME, name);
-        cv.put(STATION_KEY_SOURCE, source);
-        db.update(TABLE_STATIONS, cv, STATION_KEY_ID + " = ?", new String[]{id + ""});
-    }
-}

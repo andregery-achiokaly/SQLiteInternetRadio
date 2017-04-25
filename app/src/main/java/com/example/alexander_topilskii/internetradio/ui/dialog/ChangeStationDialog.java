@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.alexander_topilskii.internetradio.R;
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.presenters.interfaces.OnChangeDialogResultListener;
 
 import butterknife.BindView;
@@ -59,11 +58,7 @@ public class ChangeStationDialog extends DialogFragment {
         });
 
         deleteButton.setOnClickListener(v -> {
-            try {
-                onDialogResultListener.onDeleteResult(getArguments().getInt(TAG_STATION_ID));
-            } catch (NoStationsException e) {
-                e.printStackTrace();
-            }
+            onDialogResultListener.onDeleteResult(getArguments().getInt(TAG_STATION_ID));
             dismiss();
         });
 

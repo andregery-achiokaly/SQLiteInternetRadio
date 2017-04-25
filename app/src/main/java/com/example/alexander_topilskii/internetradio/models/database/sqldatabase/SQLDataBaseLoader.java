@@ -17,16 +17,14 @@ import static com.example.alexander_topilskii.internetradio.models.database.sqld
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.EDIT_SOURCE;
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.EDIT_STATION_ID;
 import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.GET_CURRENT_STATION_ID;
-import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.GET_STATION_BY_ID_ID;
-import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.GET_STATION_ID;
-import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.STATION_ID;
+import static com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLiteDataBaseInteractor.GET_STATIONS_ID;
 
-public class SQLDataBaseLoader extends AsyncTaskLoader<Object> {
+class SQLDataBaseLoader extends AsyncTaskLoader<Object> {
     private SQLDataBaseHelper db;
     private int type;
     private Bundle bundle;
 
-    public SQLDataBaseLoader(Context context, int type, Bundle bundle) {
+    SQLDataBaseLoader(Context context, int type, Bundle bundle) {
         super(context);
         db = new SQLDataBaseHelper(context);
         this.type = type;
@@ -36,7 +34,7 @@ public class SQLDataBaseLoader extends AsyncTaskLoader<Object> {
     @Override
     public Object loadInBackground() {
         switch (type) {
-            case GET_STATION_ID: {
+            case GET_STATIONS_ID: {
                 return db.getStations();
             }
             case CHANGE_CURRENT_STATION_ID: {
@@ -57,10 +55,6 @@ public class SQLDataBaseLoader extends AsyncTaskLoader<Object> {
             }
             case GET_CURRENT_STATION_ID: {
                 return db.getCurrentStation();
-            }
-            case GET_STATION_BY_ID_ID: {
-                int stationId = bundle.getInt(STATION_ID);
-                return db.getStation(stationId);
             }
             case EDIT_STATION_ID: {
                 int editId = bundle.getInt(EDIT_ID);

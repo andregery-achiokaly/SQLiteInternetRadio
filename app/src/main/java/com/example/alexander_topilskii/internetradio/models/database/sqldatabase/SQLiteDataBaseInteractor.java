@@ -25,13 +25,12 @@ public class SQLiteDataBaseInteractor implements LoaderManager.LoaderCallbacks<O
     private OnDataBaseChangedListener onDataBaseChangedListener;
     private ResultListener resultListener;
 
-    static final int GET_STATION_ID = 1;
+    static final int GET_STATIONS_ID = 1;
     static final int CHANGE_CURRENT_STATION_ID = 2;
     static final int DELETE_STATION_ID = 3;
     static final int ADD_STATION_ID = 4;
     static final int GET_CURRENT_STATION_ID = 5;
-    static final int GET_STATION_BY_ID_ID = 6;
-    static final int EDIT_STATION_ID = 7;
+    static final int EDIT_STATION_ID = 6;
 
     public SQLiteDataBaseInteractor(Context context, LoaderManager loaderManager, ResultListener resultListener, OnDataBaseChangedListener onDataBaseChangedListener) {
         this.context = context;
@@ -48,7 +47,7 @@ public class SQLiteDataBaseInteractor implements LoaderManager.LoaderCallbacks<O
     @Override
     public void onLoadFinished(Loader<Object> loader, Object data) {
         switch (loader.getId()) {
-            case GET_STATION_ID:
+            case GET_STATIONS_ID:
                 resultListener.stationsResult((Cursor) data);
                 break;
             case CHANGE_CURRENT_STATION_ID:
@@ -63,9 +62,6 @@ public class SQLiteDataBaseInteractor implements LoaderManager.LoaderCallbacks<O
             case GET_CURRENT_STATION_ID:
                 resultListener.currentStationResult((Station) data);
                 break;
-            case GET_STATION_BY_ID_ID:
-                resultListener.stationResult((Station) data);
-                break;
             case EDIT_STATION_ID:
                 onDataBaseChangedListener.onDataBaseChanged();
                 break;
@@ -78,36 +74,31 @@ public class SQLiteDataBaseInteractor implements LoaderManager.LoaderCallbacks<O
     }
 
     public void getStations() {
-        loaderManager.initLoader(GET_STATION_ID, null, this);
+        loaderManager.restartLoader(GET_STATIONS_ID, null, this);
     }
 
     public   void changeCurrentStations(int id) {
         Bundle bundle = new Bundle();
         bundle.putInt(CURRENT_ID, id);
-        loaderManager.initLoader(CHANGE_CURRENT_STATION_ID, bundle, this);
+        loaderManager.restartLoader(CHANGE_CURRENT_STATION_ID, bundle, this);
     }
 
     public void deleteStation(int id) {
         Bundle bundle = new Bundle();
         bundle.putInt(DELETE_ID, id);
-        loaderManager.initLoader(DELETE_STATION_ID, bundle, this);
+        loaderManager.restartLoader(DELETE_STATION_ID, bundle, this);
     }
 
     public void addStation(String name, String source) {
         Bundle bundle = new Bundle();
         bundle.putString(ADD_NAME, name);
         bundle.putString(ADD_SOURCE, source);
-        loaderManager.initLoader(ADD_STATION_ID, bundle, this);
+
+        loaderManager.restartLoader(ADD_STATION_ID, bundle, this);
     }
 
     public void getCurrentStation() {
-        loaderManager.initLoader(GET_CURRENT_STATION_ID, null, this);
-    }
-
-    public  void getStation(int id) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(STATION_ID, id);
-        loaderManager.initLoader(GET_STATION_BY_ID_ID, bundle, this);
+        loaderManager.restartLoader(GET_CURRENT_STATION_ID, null, this);
     }
 
     public  void editStation(int id, String name, String source) {
@@ -115,6 +106,6 @@ public class SQLiteDataBaseInteractor implements LoaderManager.LoaderCallbacks<O
         bundle.putInt(EDIT_ID, id);
         bundle.putString(EDIT_NAME, name);
         bundle.putString(EDIT_SOURCE, source);
-        loaderManager.initLoader(EDIT_STATION_ID, bundle, this);
+        loaderManager.restartLoader(EDIT_STATION_ID, bundle, this);
     }
 }

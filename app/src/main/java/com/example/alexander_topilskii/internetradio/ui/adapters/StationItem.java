@@ -3,7 +3,6 @@ package com.example.alexander_topilskii.internetradio.ui.adapters;
 
 import android.database.Cursor;
 
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 
@@ -27,7 +26,7 @@ class StationItem {
         this.source = source;
     }
 
-    static Station fromCursor(Cursor cursor) throws NoStationsException {
+    static Station fromCursor(Cursor cursor) {
         if (cursor != null) {
             int nameIndex = cursor.getColumnIndex(SQLDataBaseHelper.STATION_KEY_NAME);
             int sourceIndex = cursor.getColumnIndex(SQLDataBaseHelper.STATION_KEY_SOURCE);
@@ -40,6 +39,6 @@ class StationItem {
                     cursor.getString(sourceIndex),
                     isCurrent);
         }
-        throw new NoStationsException("No stations ");
+        return null;
     }
 }

@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.OnDataBaseChangedListener;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
@@ -68,11 +67,6 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
                 public void currentStationResult(Station station) {
                     currentStation = station;
                 }
-
-                @Override
-                public void stationResult(Station station) {
-
-                }
             };
     }
 
@@ -90,7 +84,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
             }
 
             @Override
-            public void onDeleteResult(int id) throws NoStationsException {
+            public void onDeleteResult(int id) {
                 sqLiteDataBaseInteractor.deleteStation(id);
             }
 
@@ -115,7 +109,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     }
 
     @Override
-    public void stationClick(Station station) throws NoStationsException {
+    public void stationClick(Station station) {
         sqLiteDataBaseInteractor.changeCurrentStations(station.getId());
         if (player != null) {
             if (currentStation == station) player.changeState(currentStation);
