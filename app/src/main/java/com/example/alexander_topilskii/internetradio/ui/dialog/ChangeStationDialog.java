@@ -18,6 +18,8 @@ import butterknife.ButterKnife;
 
 public class ChangeStationDialog extends DialogFragment {
     public static final String TAG_STATION_ID = "STATION_ID";
+    public static final String TAG_STATION_NAME = "STATION_NAME";
+    public static final String TAG_STATION_SOURCE = "STATION_SOURCE";
     public static final String TITLE_STATION_DIALOG = "Station dialog";
 
     @BindView(R.id.editButton)
@@ -31,10 +33,12 @@ public class ChangeStationDialog extends DialogFragment {
 
     OnChangeDialogResultListener onDialogResultListener;
 
-    public static ChangeStationDialog newInstance(int id) {
+    public static ChangeStationDialog newInstance(int id, String name, String source) {
         ChangeStationDialog f = new ChangeStationDialog();
         Bundle args = new Bundle();
         args.putInt(TAG_STATION_ID, id);
+        args.putString(TAG_STATION_NAME, name);
+        args.putString(TAG_STATION_SOURCE, source);
         f.setArguments(args);
         return f;
     }
@@ -46,7 +50,7 @@ public class ChangeStationDialog extends DialogFragment {
         ButterKnife.bind(this, view);
         setupTitle();
         editButton.setOnClickListener(v -> {
-            onDialogResultListener.onEditResult(getArguments().getInt(TAG_STATION_ID));
+            onDialogResultListener.onEditResult(getArguments().getInt(TAG_STATION_ID), getArguments().getString(TAG_STATION_NAME), getArguments().getString(TAG_STATION_SOURCE));
             dismiss();
         });
 
@@ -56,7 +60,7 @@ public class ChangeStationDialog extends DialogFragment {
         });
 
         shareButton.setOnClickListener(v -> {
-            onDialogResultListener.onShareResult(getArguments().getInt(TAG_STATION_ID));
+            onDialogResultListener.onShareResult(getArguments().getString(TAG_STATION_NAME), getArguments().getString(TAG_STATION_SOURCE));
             dismiss();
         });
         return view;

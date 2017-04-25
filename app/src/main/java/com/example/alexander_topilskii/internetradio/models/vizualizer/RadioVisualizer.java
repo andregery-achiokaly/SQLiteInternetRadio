@@ -20,6 +20,7 @@ public class RadioVisualizer {
     }
 
     public void stop() {
+        visualizerListener = null;
         if (visualizer != null) {
             visualizer.setEnabled(false);
             visualizer.release();
@@ -28,7 +29,7 @@ public class RadioVisualizer {
 
     private class AudioWaveDataCaptureListener implements Visualizer.OnDataCaptureListener {
         public void onWaveFormDataCapture(Visualizer visualizer, byte[] bytes, int samplingRate) {
-            if (visualizerListener != null) visualizerListener.updateVisualizer(bytes);
+            if (visualizerListener != null && visualizer != null) visualizerListener.updateVisualizer(bytes);
         }
 
         @Override

@@ -9,11 +9,9 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBase;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
+import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 import com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification;
@@ -24,13 +22,13 @@ import static com.example.alexander_topilskii.internetradio.ui.notification.Radi
 public class PlayerService extends Service {
     private Player player = new RadioPlayer();
     private Notification notification;
-    private DataBase mockModel;
+    private DataBase dataBase;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mockModel = new SQLDataBase(new SQLDataBaseHelper(getApplicationContext()).getReadableDatabase());
-        notification = new RadioNotification(getApplicationContext(), "f").getNotification();
+        dataBase = SqliteExecutorManager.getInstance(getApplicationContext());
+        notification = new RadioNotification(getApplicationContext(), "Radio").getNotification();
         startForeground(RadioNotification.ID, notification);
     }
 
@@ -40,14 +38,9 @@ public class PlayerService extends Service {
         if (intent != null) {
             String action = intent.getStringExtra(ACTION);
             if (action != null && action.equals(PLAY)) {
-                try {
-                    player.changeState(mockModel.getCurrentStation());
-                } catch (NoStationsException e) {
-                    e.printStackTrace();
-                }
+                player.changeState(dataBase.getCurrentStation());
             }
         }
-
         return Service.START_STICKY;
     }
 
@@ -65,7 +58,7 @@ public class PlayerService extends Service {
     public class RadioBinder extends Binder implements Player {
         public void setPlayerCallbackListener(PlayerCallbackListener listener) {
             PlayerCallbackListener playerCallbackListener = (id, state) -> {
-                listener.setPlayerStates(id, (state));
+                if (listener != null) listener.setPlayerStates(id, (state));
                 notification = new RadioNotification(getApplicationContext(), state.toString()).getNotification();
                 NotificationManager mNotificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(RadioNotification.ID, notification);

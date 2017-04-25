@@ -60,7 +60,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
     private void pause() {
         mediaPlayer.pause();
         // Wait 1 min. If user doesn't run player again - player will be closed.
-        // If we don't close player - player will spend traffic
+        // If we don't close player - player will waste traffic
         radioCloseHandler.postDelayed(radioCloseRunnable, 60 * 1000);
 
         currentState = State.IS_STOP;
@@ -69,14 +69,16 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
 
     @Override
     public void changeState(Station station) {
-        currentState = State.IS_WAIT;
-        listener.setPlayerStates(-1, State.IS_WAIT);
-        if (mediaPlayer == null) initPlayer(station.getSource());
-        else {
-            if (mediaPlayer.isPlaying()) {
-                pause();
-            } else {
-                play();
+        if (station != null) {
+            currentState = State.IS_WAIT;
+            listener.setPlayerStates(-1, State.IS_WAIT);
+            if (mediaPlayer == null) initPlayer(station.getSource());
+            else {
+                if (mediaPlayer.isPlaying()) {
+                    pause();
+                } else {
+                    play();
+                }
             }
         }
     }
@@ -121,7 +123,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         mp.start();
         if (mp.isPlaying()) {
             currentState = State.IS_PLAY;
-            listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
+            if (listener != null) listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
         }
     }
 

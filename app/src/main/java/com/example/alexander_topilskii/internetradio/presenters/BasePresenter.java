@@ -4,15 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
 
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
-import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBase;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SQLDataBaseHelper;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
+import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
@@ -35,25 +34,58 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     private PlayerCallbackListener playerCallbackListener;
     private RadioVisualizer radioVisualizer;
     private Station currentStation;
-    private DataBase dataBase;
+    private SqliteExecutorManager dataBase;
     private Player player;
     private boolean canShow;
     private OnChangeDialogResultListener onDialogResultListener;
 
     public BasePresenter(Context context) {
         radioServiceConnection = new RadioServiceConnection();
-        dataBase = new SQLDataBase(new SQLDataBaseHelper(context).getReadableDatabase());
+        dataBase = SqliteExecutorManager.getInstance(context);
+        DataBaseChangedListener dataBaseChangeListener = getDataBaseChangeListener();
+        ResultListener resultListener = getResultListener();
+        dataBase.addChangeListener(dataBaseChangeListener);
+        dataBase.addResultListener(resultListener);
         playerCallbackListener = getPlayerCallbackListener();
         radioVisualizer = new RadioVisualizer();
-        onDialogResultListener = getOnDialogResultListener(((MainActivity) context).getSupportFragmentManager());
+        onDialogResultListener = getOnDialogResultListener(context);
     }
 
     @NonNull
-    private OnChangeDialogResultListener getOnDialogResultListener(final FragmentManager fragmentManager) {
+    private ResultListener getResultListener() {
+        return new ResultListener() {
+            @Override
+            public void stationsResult(Cursor cursor) {
+                if (getView() != null) {
+                    getView().setListStation(cursor);
+                }
+            }
+
+            @Override
+            public void currentStationResult(Station station) {
+                currentStation = station;
+            }
+        };
+    }
+
+
+    @NonNull
+    private DataBaseChangedListener getDataBaseChangeListener() {
+        return () -> dataBase.getStations();
+    }
+
+    @NonNull
+    private OnChangeDialogResultListener getOnDialogResultListener(final Context context) {
         return new OnChangeDialogResultListener() {
             @Override
-            public void onShareResult(int id) {
-
+            public void onShareResult(String name, String source) {
+                if (context != null) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, "It is my favorite Radio: " + name + "\n" + source);
+                    sendIntent.setType("text/plain");
+                    context.startActivity(sendIntent);
+                }
             }
 
             @Override
@@ -62,14 +94,11 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
             }
 
             @Override
-            public void onEditResult(int id) {
-                try {
-                    Station station = dataBase.getStation(id);
-                    EditStationDialog editStationDialog = EditStationDialog.newInstance(id, station.getName(), station.getSource());
-                    editStationDialog.setOnChangeDialogResultListener((id1, name, source) -> dataBase.editStation(id, name, source));
-                    editStationDialog.show(fragmentManager, TAG_EDIT_STATION_DIALOG);
-                } catch (NoStationsException e) {
-                    e.printStackTrace();
+            public void onEditResult(int id, String name, String source) {
+                if (context != null) {
+                    EditStationDialog editStationDialog = EditStationDialog.newInstance(id, name, source);
+                    editStationDialog.setOnChangeDialogResultListener((id1, name1, source1) -> dataBase.editStation(id, name, source));
+                    editStationDialog.show(((MainActivity) context).getSupportFragmentManager(), TAG_EDIT_STATION_DIALOG);
                 }
             }
         };
@@ -78,9 +107,11 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     private PlayerCallbackListener getPlayerCallbackListener() {
         return (id, state) -> {
             if (getView() != null) {
-                if (canShow && (player != null)) {
+                if (canShow) {
                     getView().changeState(state);
-                    if (radioVisualizer != null) radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> getView().setAudioWave(bytes));
+                    if (radioVisualizer != null && player != null) radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
+                        if (bytes != null) getView().setAudioWave(bytes);
+                    });
                 }
             }
         };
@@ -98,7 +129,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void stationLongClick(MainActivity activity, Station station) {
-        ChangeStationDialog changeStationDialog = ChangeStationDialog.newInstance(station.getId());
+        ChangeStationDialog changeStationDialog = ChangeStationDialog.newInstance(station.getId(), station.getName(), station.getSource());
         changeStationDialog.setOnDialogResultListener(onDialogResultListener);
         changeStationDialog.show(activity.getSupportFragmentManager(), TAG_CHANGE_STATION_DIALOG);
     }
@@ -110,20 +141,9 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void onResume(Context context) {
-        try {
-            currentStation = dataBase.getCurrentStation();
-        } catch (NoStationsException e) {
-            e.printStackTrace();
-        }
+        dataBase.getCurrentStation();
         bindToRadioService(context);
-
-        if (getView() != null) {
-            try {
-                getView().setListStation(dataBase.getStations());
-            } catch (NoStationsException e) {
-                e.printStackTrace();
-            }
-        }
+        dataBase.getStations();
     }
 
     private void bindToRadioService(Context context) {
@@ -136,6 +156,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
         radioVisualizer.stop();
         if (player != null) player.setPlayerCallbackListener(null);
         context.unbindService(radioServiceConnection);
+        onDialogResultListener = null;
     }
 
     @Override

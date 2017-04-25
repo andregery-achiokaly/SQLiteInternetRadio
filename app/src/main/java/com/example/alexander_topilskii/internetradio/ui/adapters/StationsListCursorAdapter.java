@@ -2,6 +2,7 @@ package com.example.alexander_topilskii.internetradio.ui.adapters;
 
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.alexander_topilskii.internetradio.R;
-import com.example.alexander_topilskii.internetradio.models.database.NoStationsException;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.ui.interfaces.AdapterCallback;
 
@@ -29,15 +29,11 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-        try {
-            Station station = StationItem.fromCursor(cursor);
+        Station station = StationItem.fromCursor(cursor);
 
-            viewHolder.setName(station.getName());
-            viewHolder.setSource(station.getSource());
-            viewHolder.setStation(station);
-        } catch (NoStationsException e) {
-            e.printStackTrace();
-        }
+        viewHolder.setName(station.getName());
+        viewHolder.setSource(station.getSource());
+        viewHolder.setStation(station);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -66,6 +62,10 @@ public class StationsListCursorAdapter extends CursorRecyclerViewAdapter<Station
 
         void setStation(Station station) {
             this.station = station;
+            if (station.isCurrent()) {
+                this.name.setTextColor(Color.BLUE);
+                this.source.setTextColor(Color.BLUE);
+            }
         }
     }
 }

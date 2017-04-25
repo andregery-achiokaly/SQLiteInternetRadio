@@ -67,18 +67,22 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
 
     @Override
     public void setListStation(Cursor stations) {
-        adapter = new StationsListCursorAdapter(this, stations);
-        recyclerView.setAdapter(adapter);
+        runOnUiThread(() -> {
+            adapter = new StationsListCursorAdapter(this, stations);
+            recyclerView.setAdapter(adapter);
+        });
     }
 
     @Override
     public void setAudioWave(byte[] bytes) {
-        if (waveView != null) waveView.updateVisualizer(bytes);
+        runOnUiThread(() -> {
+            if (waveView != null) waveView.updateVisualizer(bytes);
+        });
     }
 
     @Override
     public void changeState(State state) {
-        playButton.setImageResource(state.getResourceBitmap());
+        runOnUiThread(() -> playButton.setImageResource(state.getResourceBitmap()));
     }
 
     @Override
