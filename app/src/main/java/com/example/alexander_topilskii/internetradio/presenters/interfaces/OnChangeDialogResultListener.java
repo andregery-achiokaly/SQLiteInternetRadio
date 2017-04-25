@@ -6,5 +6,5 @@ import com.example.alexander_topilskii.internetradio.models.database.NoStationsE
 public interface OnChangeDialogResultListener {
     void onShareResult(int id);
     void onDeleteResult(int id) throws NoStationsException;
-    void onEditResult(int id);
+    void onEditResult(int id, String name, String source);
 }
