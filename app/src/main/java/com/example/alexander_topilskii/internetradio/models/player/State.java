@@ -24,10 +24,10 @@ public enum State {
         String state = "";
         switch (this) {
             case IS_PLAY:
-                state = "play";
+                state = "stop";
                 break;
             case IS_STOP:
-                state = "stop";
+                state = "play";
                 break;
             case IS_ERROR:
                 state = "error";

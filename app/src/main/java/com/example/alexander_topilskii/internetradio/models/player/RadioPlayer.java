@@ -76,16 +76,12 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         if (station != null) {
             if (mediaPlayer == null) initPlayer(station.getSource());
             else {
-                changeStateForExistPlayer();
+                if (mediaPlayer.isPlaying()) {
+                    pause();
+                } else {
+                    play();
+                }
             }
-        }
-    }
-
-    private void changeStateForExistPlayer() {
-        if (mediaPlayer.isPlaying()) {
-            pause();
-        } else {
-            play();
         }
     }
 
@@ -126,9 +122,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
 
     @Override
     public void deletePlayerCallbackListener(PlayerCallbackListener listener) {
-        if (callbackListeners != null) {
-            callbackListeners.remove(listener);
-        }
+
     }
 
     @Override
