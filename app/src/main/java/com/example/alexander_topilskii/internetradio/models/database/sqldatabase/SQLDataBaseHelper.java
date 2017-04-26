@@ -17,11 +17,11 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
     public static final String STATION_KEY_NAME = "KEY_NAME";
     public static final String STATION_KEY_SOURCE = "KEY_SOURCE";
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     private static final String DATABASE_NAME = SQLDataBaseHelper.class.getSimpleName();
     private SQLiteDatabase db;
 
-    SQLDataBaseHelper(Context context) {
+    public SQLDataBaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = getReadableDatabase();
     }

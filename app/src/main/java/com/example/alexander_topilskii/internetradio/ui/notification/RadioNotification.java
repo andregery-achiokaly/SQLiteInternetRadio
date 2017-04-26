@@ -19,18 +19,18 @@ public class RadioNotification {
     public final static String ACTION = "ACTION";
     public final static String PLAY = "PLAY";
 
-    public RadioNotification(Context context, String text) {
+    public RadioNotification(Context context, String radioState) {
         Intent playRadioIntent = new Intent(context, PlayerService.class);
         playRadioIntent.putExtra(ACTION, PLAY);
 
-        PendingIntent playPendingIntent = PendingIntent.getService(context, PENDING_INTENT_CODE, playRadioIntent, 0);
+        PendingIntent changeRadioStateIntent = PendingIntent.getService(context, PENDING_INTENT_CODE, playRadioIntent, 0);
 
-        NotificationCompat.Builder mBuilder =
+        NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_radio_black_24dp)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setContentTitle("Great Radio")
-                        .addAction(R.mipmap.ic_radio_black_24dp, text, playPendingIntent)
+                        .addAction(R.mipmap.ic_radio_black_24dp, radioState, changeRadioStateIntent)
                         .setAutoCancel(true);
 
         Intent resultIntent = new Intent(context, MainPermissionActivity.class);
@@ -39,8 +39,8 @@ public class RadioNotification {
         stackBuilder.addParentStack(MainPermissionActivity.class);
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(resultPendingIntent);
-        notification = mBuilder.build();
+        builder.setContentIntent(resultPendingIntent);
+        notification = builder.build();
     }
 
     public Notification getNotification() {

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
+public class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
     private MediaPlayer mediaPlayer;
     private List<PlayerCallbackListener> callbackListeners;
     private Handler radioCloseHandler = new Handler();
@@ -38,7 +38,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         currentState = State.IS_ERROR;
         updateListeners(mediaPlayer.getAudioSessionId(), State.IS_ERROR);
         e.printStackTrace();
-        close();
+        releaseMediaplayer();
     }
 
     private void changeSource(String source) {
@@ -107,6 +107,10 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
     @Override
     public void close() {
         callbackListeners = null;
+        releaseMediaplayer();
+    }
+
+    private void releaseMediaplayer() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();

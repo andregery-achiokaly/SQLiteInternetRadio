@@ -8,11 +8,11 @@ import android.database.Cursor;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 
+import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseManager;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
 import com.example.alexander_topilskii.internetradio.models.player.State;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
@@ -27,31 +27,36 @@ import com.example.alexander_topilskii.internetradio.ui.dialog.EditStationDialog
 import com.example.alexander_topilskii.internetradio.ui.interfaces.BaseActivity;
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
+import javax.inject.Inject;
+
 public class BasePresenter extends MvpBasePresenter<BaseActivity> implements BasePresenterInterface {
     private static final String TAG_CHANGE_STATION_DIALOG = "TAG_CHANGE_STATION_DIALOG";
     private static final String TAG_ADD_STATION_DIALOG = "TAG_ADD_STATION_DIALOG";
     private static final String TAG_EDIT_STATION_DIALOG = "TAG_EDIT_STATION_DIALOG";
 
+    @Inject
+    DataBaseManager dataBaseManager;
+    @Inject
+    Player player;
+    @Inject
+    RadioVisualizer radioVisualizer;
+
     private RadioServiceConnection radioServiceConnection;
     private PlayerCallbackListener playerCallbackListener;
-    private RadioVisualizer radioVisualizer;
     private Station currentStation;
-    private DataBaseManager dataBase;
-    private Player player;
     private boolean canShow;
     private OnChangeDialogResultListener onDialogResultListener;
     private DataBaseChangedListener dataBaseChangeListener;
     private ResultListener resultListener;
 
     public BasePresenter(Context context) {
+        Application.getComponent().injectBasePresenter(this);
         radioServiceConnection = new RadioServiceConnection();
-        dataBase = SqliteExecutorManager.getInstance(context);
         dataBaseChangeListener = getDataBaseChangeListener();
         resultListener = getResultListener();
-        dataBase.addChangeListener(dataBaseChangeListener);
-        dataBase.addResultListener(resultListener);
+        dataBaseManager.addChangeListener(dataBaseChangeListener);
+        dataBaseManager.addResultListener(resultListener);
         playerCallbackListener = getPlayerCallbackListener();
-        radioVisualizer = new RadioVisualizer();
         onDialogResultListener = getOnDialogResultListener(context);
     }
 
@@ -75,7 +80,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @NonNull
     private DataBaseChangedListener getDataBaseChangeListener() {
-        return () -> dataBase.getStations();
+        return () -> dataBaseManager.getStations();
     }
 
     @NonNull
@@ -94,14 +99,14 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
             @Override
             public void onDeleteResult(int id) {
-                dataBase.deleteStation(id);
+                dataBaseManager.deleteStation(id);
             }
 
             @Override
             public void onEditResult(int id, String name, String source) {
                 if (context != null) {
                     EditStationDialog editStationDialog = EditStationDialog.newInstance(id, name, source);
-                    editStationDialog.setOnChangeDialogResultListener((id1, name1, source1) -> dataBase.editStation(id, name, source));
+                    editStationDialog.setOnChangeDialogResultListener((id1, name1, source1) -> dataBaseManager.editStation(id, name, source));
                     editStationDialog.show(((MainActivity) context).getSupportFragmentManager(), TAG_EDIT_STATION_DIALOG);
                 }
             }
@@ -123,7 +128,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void stationClick(Station station) {
-        dataBase.changeCurrentStations(station.getId());
+        dataBaseManager.changeCurrentStations(station.getId());
         if (player != null) {
             if (currentStation == station) {
                 player.changeState(currentStation);
@@ -147,9 +152,9 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void onResume(Context context) {
-        dataBase.getCurrentStation();
+        dataBaseManager.getCurrentStation();
         bindToRadioService(context);
-        dataBase.getStations();
+        dataBaseManager.getStations();
     }
 
     private void bindToRadioService(Context context) {
@@ -160,7 +165,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @Override
     public void onPause(Context context) {
         radioVisualizer.stop();
-        dataBase.deleteListeners(dataBaseChangeListener, resultListener);
+        dataBaseManager.deleteListeners(dataBaseChangeListener, resultListener);
         if (player != null) player.deletePlayerCallbackListener(playerCallbackListener);
         context.unbindService(radioServiceConnection);
         onDialogResultListener = null;
@@ -174,14 +179,13 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @Override
     public void addStationClick(MainActivity activity) {
         AddStationDialog changeStationDialog = AddStationDialog.newInstance();
-        changeStationDialog.setOnAddDialogResultListener((name, source) -> dataBase.addStation(name, source));
+        changeStationDialog.setOnAddDialogResultListener((name, source) -> dataBaseManager.addStation(name, source));
         changeStationDialog.show(activity.getSupportFragmentManager(), TAG_ADD_STATION_DIALOG);
     }
 
     private class RadioServiceConnection implements ServiceConnection {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             ((PlayerService.RadioBinder) binder).addPlayerCallbackListener(playerCallbackListener);
-            player = ((PlayerService.RadioBinder) binder);
             if (getView() != null && player != null) {
                 radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> getView().setAudioWave(bytes));
                 getView().changeState(player.getState());

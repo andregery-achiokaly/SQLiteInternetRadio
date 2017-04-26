@@ -9,26 +9,30 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
-import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 import com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification;
+
+import javax.inject.Inject;
 
 import static com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification.ACTION;
 import static com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification.PLAY;
 
 public class PlayerService extends Service {
-    private Player player = new RadioPlayer();
-    private Notification notification;
-    private DataBase dataBase;
+    @Inject
+    Player player;
+    @Inject
+    DataBase dataBase;
+    @Inject
+    Notification notification;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dataBase = SqliteExecutorManager.getInstance(getApplicationContext());
-        notification = new RadioNotification(getApplicationContext(), "Play").getNotification();
+        Application.getComponent().injectPlayerService(this);
         startForeground(RadioNotification.ID, notification);
     }
 
