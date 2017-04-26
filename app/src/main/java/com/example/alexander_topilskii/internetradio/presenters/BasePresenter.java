@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
@@ -115,13 +116,11 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     private PlayerCallbackListener getPlayerCallbackListener() {
         return (id, state) -> {
-            if (getView() != null) {
-                getView().changeState(state);
-                if (radioVisualizer != null && player != null && canShow) {
-                    radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
-                        if (bytes != null) getView().setAudioWave(bytes);
-                    });
-                }
+            if (getView() != null) getView().changeState(state);
+            if (radioVisualizer != null && player != null && canShow) {
+                radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
+                    if (bytes != null && getView() != null) getView().setAudioWave(bytes);
+                });
             }
         };
     }
@@ -146,7 +145,9 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void playButtonClick() {
-        if (currentStation != null && getView() != null) getView().changeState(State.IS_ERROR, "Chose a station!");
+        dataBaseManager.getCurrentStation();
+
+        if (currentStation == null && getView() != null) getView().changeState(State.IS_ERROR, "Chose a station!");
         else if (player != null) player.changeState(currentStation);
     }
 

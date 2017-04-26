@@ -62,6 +62,7 @@ public class SqliteExecutorManager implements DataBaseManager {
             dataBaseHelper.changeCurrentStations(id);
             for (DataBaseChangedListener listener : dataBaseChangedListenerList) listener.onDataBaseChanged();
         });
+        getCurrentStation();
     }
 
     public void deleteStation(int id) {
