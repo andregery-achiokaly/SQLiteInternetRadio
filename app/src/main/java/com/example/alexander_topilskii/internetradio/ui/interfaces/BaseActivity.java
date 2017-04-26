@@ -10,4 +10,5 @@ public interface BaseActivity extends MvpView {
     void setListStation(Cursor stations);
     void setAudioWave(byte[] bytes);
     void changeState(State state);
+    void changeState(State state, String message);
 }

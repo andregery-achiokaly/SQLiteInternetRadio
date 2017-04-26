@@ -13,6 +13,7 @@ import com.example.alexander_topilskii.internetradio.models.database.interfaces.
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
+import com.example.alexander_topilskii.internetradio.models.player.State;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 import com.example.alexander_topilskii.internetradio.models.vizualizer.RadioVisualizer;
@@ -107,8 +108,8 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     private PlayerCallbackListener getPlayerCallbackListener() {
         return (id, state) -> {
             if (getView() != null) {
+                getView().changeState(state);
                 if (canShow) {
-                    getView().changeState(state);
                     if (radioVisualizer != null && player != null) radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
                         if (bytes != null) getView().setAudioWave(bytes);
                     });
@@ -121,8 +122,9 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     public void stationClick(Station station) {
         dataBase.changeCurrentStations(station.getId());
         if (player != null) {
-            if (currentStation == station) player.changeState(currentStation);
-            else player.setNewStation(station);
+            if (currentStation == station) {
+                player.changeState(currentStation);
+            } else player.setNewStation(station);
         }
         currentStation = station;
     }
@@ -136,7 +138,8 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void playButtonClick() {
-        if (player != null) player.changeState(currentStation);
+        if (currentStation != null && getView() != null) getView().changeState(State.IS_ERROR, "Chose a station!");
+        else if (player != null) player.changeState(currentStation);
     }
 
     @Override

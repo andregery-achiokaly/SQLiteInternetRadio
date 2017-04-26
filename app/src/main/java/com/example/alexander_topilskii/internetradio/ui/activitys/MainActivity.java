@@ -1,5 +1,6 @@
 package com.example.alexander_topilskii.internetradio.ui.activitys;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -7,11 +8,14 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.alexander_topilskii.internetradio.R;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
+import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
 import com.example.alexander_topilskii.internetradio.models.player.State;
 import com.example.alexander_topilskii.internetradio.presenters.BasePresenter;
 import com.example.alexander_topilskii.internetradio.ui.adapters.StationsListCursorAdapter;
@@ -75,14 +79,18 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
 
     @Override
     public void setAudioWave(byte[] bytes) {
-        runOnUiThread(() -> {
-            if (waveView != null) waveView.updateVisualizer(bytes);
-        });
+        if (waveView != null) waveView.updateVisualizer(bytes);
     }
 
     @Override
     public void changeState(State state) {
-        runOnUiThread(() -> playButton.setImageResource(state.getResourceBitmap()));
+        playButton.setImageResource(state.getResourceBitmap());
+    }
+
+    @Override
+    public void changeState(State state, String message) {
+        playButton.setImageResource(state.getResourceBitmap());
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -110,5 +118,13 @@ public class MainActivity extends MvpActivity<BaseActivity, BasePresenter> imple
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            stopService(new Intent(this, PlayerService.class));
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

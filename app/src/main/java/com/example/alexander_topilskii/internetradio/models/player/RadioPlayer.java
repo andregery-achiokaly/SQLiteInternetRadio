@@ -4,10 +4,11 @@ package com.example.alexander_topilskii.internetradio.models.player;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.util.Log;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
-import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
+import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 
 import java.io.IOException;
 
@@ -69,9 +70,9 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
 
     @Override
     public void changeState(Station station) {
+        currentState = State.IS_WAIT;
+        listener.setPlayerStates(-1, State.IS_WAIT);
         if (station != null) {
-            currentState = State.IS_WAIT;
-            listener.setPlayerStates(-1, State.IS_WAIT);
             if (mediaPlayer == null) initPlayer(station.getSource());
             else {
                 if (mediaPlayer.isPlaying()) {
@@ -85,6 +86,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
 
     @Override
     public void setNewStation(Station station) {
+        currentState = State.IS_WAIT;
         listener.setPlayerStates(-1, State.IS_WAIT);
         if (mediaPlayer == null) {
             initPlayer(station.getSource());
