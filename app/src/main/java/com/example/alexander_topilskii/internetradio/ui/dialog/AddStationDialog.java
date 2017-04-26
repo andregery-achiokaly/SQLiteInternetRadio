@@ -55,4 +55,10 @@ public class AddStationDialog extends DialogFragment {
     public static AddStationDialog newInstance() {
         return new AddStationDialog();
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onAddDialogResultListener = null;
+    }
 }

@@ -28,7 +28,7 @@ public class PlayerService extends Service {
     public void onCreate() {
         super.onCreate();
         dataBase = SqliteExecutorManager.getInstance(getApplicationContext());
-        notification = new RadioNotification(getApplicationContext(), "Radio").getNotification();
+        notification = new RadioNotification(getApplicationContext(), "Play").getNotification();
         startForeground(RadioNotification.ID, notification);
     }
 
@@ -56,15 +56,23 @@ public class PlayerService extends Service {
     }
 
     public class RadioBinder extends Binder implements Player {
-        public void setPlayerCallbackListener(PlayerCallbackListener listener) {
-            PlayerCallbackListener playerCallbackListener = (id, state) -> {
-                if (listener != null) listener.setPlayerStates(id, (state));
+        PlayerCallbackListener playerCallbackListener;
+
+        public void addPlayerCallbackListener(PlayerCallbackListener listener) {
+            playerCallbackListener = (id, state) -> {
                 notification = new RadioNotification(getApplicationContext(), state.toString()).getNotification();
                 NotificationManager mNotificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotificationManager.notify(RadioNotification.ID, notification);
             };
 
-            player.setPlayerCallbackListener(playerCallbackListener);
+            player.addPlayerCallbackListener(listener);
+            player.addPlayerCallbackListener(playerCallbackListener);
+        }
+
+        @Override
+        public void deletePlayerCallbackListener(PlayerCallbackListener listener) {
+            player.deletePlayerCallbackListener(listener);
+            player.deletePlayerCallbackListener(playerCallbackListener);
         }
 
         @Override

@@ -8,7 +8,8 @@ public interface Player {
     void changeState(Station station);
     void setNewStation(Station station);
     void close();
-    void setPlayerCallbackListener(PlayerCallbackListener listener);
+    void addPlayerCallbackListener(PlayerCallbackListener listener);
+    void deletePlayerCallbackListener(PlayerCallbackListener listener);
     int getId();
     State getState();
 }

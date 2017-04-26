@@ -5,8 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
-import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseManager;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
 
 import java.util.LinkedList;
@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SqliteExecutorManager implements DataBase {
+public class SqliteExecutorManager implements DataBaseManager {
     private ExecutorService executorService;
     private SQLDataBaseHelper dataBaseHelper;
     private List<DataBaseChangedListener> dataBaseChangedListenerList;
     private static SqliteExecutorManager sqliteExecutorManager;
-    private List<ResultListener> resultListener;
+    private List<ResultListener> resultListenerList;
 
     public static SqliteExecutorManager getInstance(Context context) {
         if (sqliteExecutorManager == null) {
@@ -32,7 +32,13 @@ public class SqliteExecutorManager implements DataBase {
         executorService = Executors.newSingleThreadExecutor();
         dataBaseHelper = new SQLDataBaseHelper(context);
         dataBaseChangedListenerList = new LinkedList<>();
-        resultListener = new LinkedList<>();
+        resultListenerList = new LinkedList<>();
+    }
+
+    @Override
+    public void deleteListeners(DataBaseChangedListener dataBaseChangeListener, ResultListener resultListener) {
+        dataBaseChangedListenerList.remove(dataBaseChangeListener);
+        resultListenerList.remove(resultListener);
     }
 
     public void addChangeListener(DataBaseChangedListener listener) {
@@ -40,13 +46,13 @@ public class SqliteExecutorManager implements DataBase {
     }
 
     public void addResultListener(ResultListener listener) {
-        resultListener.add(listener);
+        resultListenerList.add(listener);
     }
 
     public Cursor getStations() {
         executorService.submit(() -> {
             Cursor cursor = dataBaseHelper.getStations();
-            for (ResultListener listener : resultListener) listener.stationsResult(cursor);
+            for (ResultListener listener : resultListenerList) listener.stationsResult(cursor);
         });
         return null;
     }
@@ -76,7 +82,7 @@ public class SqliteExecutorManager implements DataBase {
     public Station getCurrentStation() {
         executorService.submit(() -> {
             Station station = dataBaseHelper.getCurrentStation();
-            for (ResultListener listener : resultListener) listener.currentStationResult(station);
+            for (ResultListener listener : resultListenerList) listener.currentStationResult(station);
         });
         return null;
     }
@@ -91,7 +97,7 @@ public class SqliteExecutorManager implements DataBase {
     @Override
     public void closeDataBase() {
         dataBaseChangedListenerList.clear();
-        resultListener.clear();
+        resultListenerList.clear();
         executorService.shutdownNow();
         executorService.submit(() -> dataBaseHelper.closeDataBase());
     }

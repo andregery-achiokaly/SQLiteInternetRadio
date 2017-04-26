@@ -28,7 +28,7 @@ public class EditStationDialog extends DialogFragment {
     @BindView(R.id.station_source)
     EditText stationSourceEditText;
 
-    OnEditStationDialogResult onEditStationDialogResult;
+    OnEditStationDialogResult onEditStationDialogResultListener;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,13 +48,13 @@ public class EditStationDialog extends DialogFragment {
         if (name.isEmpty() || source.isEmpty())
             Toast.makeText(getContext(), ERROR_FIELDS_CAN_T_BE_EMPTY, Toast.LENGTH_SHORT).show();
         else {
-            onEditStationDialogResult.onEditResult(getArguments().getInt(TAG_ID_STATION), name, source);
+            onEditStationDialogResultListener.onEditResult(getArguments().getInt(TAG_ID_STATION), name, source);
             dismiss();
         }
     }
 
     public void setOnChangeDialogResultListener(OnEditStationDialogResult onAddDialogResultListener) {
-        this.onEditStationDialogResult = onAddDialogResultListener;
+        this.onEditStationDialogResultListener = onAddDialogResultListener;
     }
 
     public static EditStationDialog newInstance(int id, String name, String source) {
@@ -65,5 +65,11 @@ public class EditStationDialog extends DialogFragment {
         args.putString(TAG_SOURCE_STATION, source);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        onEditStationDialogResultListener = null;
     }
 }

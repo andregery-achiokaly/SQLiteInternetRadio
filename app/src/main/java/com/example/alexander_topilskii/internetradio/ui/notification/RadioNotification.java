@@ -14,8 +14,8 @@ import com.example.alexander_topilskii.internetradio.ui.activitys.MainPermission
 
 public class RadioNotification {
     private static final int PENDING_INTENT_CODE = 755;
-    private final Notification notification;
     public final static int ID = 123;
+    private final Notification notification;
     public final static String ACTION = "ACTION";
     public final static String PLAY = "PLAY";
 
@@ -29,8 +29,7 @@ public class RadioNotification {
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_radio_black_24dp)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setContentTitle("Hello Title")
-                        .setContentText("Hello text")
+                        .setContentTitle("Great Radio")
                         .addAction(R.mipmap.ic_radio_black_24dp, text, playPendingIntent)
                         .setAutoCancel(true);
 

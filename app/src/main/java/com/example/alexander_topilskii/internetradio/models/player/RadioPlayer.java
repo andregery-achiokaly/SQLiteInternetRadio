@@ -4,17 +4,18 @@ package com.example.alexander_topilskii.internetradio.models.player;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.util.Log;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.PlayerCallbackListener;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener {
     private MediaPlayer mediaPlayer;
-    private PlayerCallbackListener listener;
+    private List<PlayerCallbackListener> callbackListeners;
     private Handler radioCloseHandler = new Handler();
     private Runnable radioCloseRunnable = this::close;
     private State currentState = State.IS_STOP;
@@ -27,7 +28,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
             mediaPlayer.setDataSource(source);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.prepareAsync();
-            listener.setPlayerStates(mediaPlayer.getAudioSessionId(), currentState);
+            updateListeners(mediaPlayer.getAudioSessionId(), currentState);
         } catch (IOException | NullPointerException e) {
             errorProcessing(e);
         }
@@ -35,7 +36,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
 
     private void errorProcessing(Exception e) {
         currentState = State.IS_ERROR;
-        listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_ERROR);
+        updateListeners(mediaPlayer.getAudioSessionId(), State.IS_ERROR);
         e.printStackTrace();
         close();
     }
@@ -55,7 +56,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         radioCloseHandler.removeCallbacks(radioCloseRunnable);
         mediaPlayer.start();
         currentState = State.IS_PLAY;
-        listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
+        updateListeners(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
     }
 
     private void pause() {
@@ -65,29 +66,33 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         radioCloseHandler.postDelayed(radioCloseRunnable, 60 * 1000);
 
         currentState = State.IS_STOP;
-        listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_STOP);
+        updateListeners(mediaPlayer.getAudioSessionId(), State.IS_STOP);
     }
 
     @Override
     public void changeState(Station station) {
         currentState = State.IS_WAIT;
-        listener.setPlayerStates(-1, State.IS_WAIT);
+        updateListeners(-1, State.IS_WAIT);
         if (station != null) {
             if (mediaPlayer == null) initPlayer(station.getSource());
             else {
-                if (mediaPlayer.isPlaying()) {
-                    pause();
-                } else {
-                    play();
-                }
+                changeStateForExistPlayer();
             }
+        }
+    }
+
+    private void changeStateForExistPlayer() {
+        if (mediaPlayer.isPlaying()) {
+            pause();
+        } else {
+            play();
         }
     }
 
     @Override
     public void setNewStation(Station station) {
         currentState = State.IS_WAIT;
-        listener.setPlayerStates(-1, State.IS_WAIT);
+        updateListeners(-1, State.IS_WAIT);
         if (mediaPlayer == null) {
             initPlayer(station.getSource());
         } else {
@@ -95,8 +100,17 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         }
     }
 
+    private void updateListeners(int id, State isWait) {
+        if (callbackListeners != null) {
+            for (PlayerCallbackListener listener : callbackListeners) {
+                listener.setPlayerStates(id, isWait);
+            }
+        }
+    }
+
     @Override
     public void close() {
+        callbackListeners = null;
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -105,8 +119,16 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
     }
 
     @Override
-    public void setPlayerCallbackListener(PlayerCallbackListener listener) {
-        this.listener = listener;
+    public void addPlayerCallbackListener(PlayerCallbackListener listener) {
+        if (callbackListeners == null) callbackListeners = new LinkedList<>();
+        this.callbackListeners.add(listener);
+    }
+
+    @Override
+    public void deletePlayerCallbackListener(PlayerCallbackListener listener) {
+        if (callbackListeners != null) {
+            callbackListeners.remove(listener);
+        }
     }
 
     @Override
@@ -125,7 +147,7 @@ class RadioPlayer implements Player, MediaPlayer.OnPreparedListener, MediaPlayer
         mp.start();
         if (mp.isPlaying()) {
             currentState = State.IS_PLAY;
-            if (listener != null) listener.setPlayerStates(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
+            updateListeners(mediaPlayer.getAudioSessionId(), State.IS_PLAY);
         }
     }
 

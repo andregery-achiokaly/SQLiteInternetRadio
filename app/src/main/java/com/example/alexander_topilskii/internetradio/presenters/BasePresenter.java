@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseManager;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
@@ -35,16 +36,18 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     private PlayerCallbackListener playerCallbackListener;
     private RadioVisualizer radioVisualizer;
     private Station currentStation;
-    private SqliteExecutorManager dataBase;
+    private DataBaseManager dataBase;
     private Player player;
     private boolean canShow;
     private OnChangeDialogResultListener onDialogResultListener;
+    private DataBaseChangedListener dataBaseChangeListener;
+    private ResultListener resultListener;
 
     public BasePresenter(Context context) {
         radioServiceConnection = new RadioServiceConnection();
         dataBase = SqliteExecutorManager.getInstance(context);
-        DataBaseChangedListener dataBaseChangeListener = getDataBaseChangeListener();
-        ResultListener resultListener = getResultListener();
+        dataBaseChangeListener = getDataBaseChangeListener();
+        resultListener = getResultListener();
         dataBase.addChangeListener(dataBaseChangeListener);
         dataBase.addResultListener(resultListener);
         playerCallbackListener = getPlayerCallbackListener();
@@ -109,8 +112,8 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
         return (id, state) -> {
             if (getView() != null) {
                 getView().changeState(state);
-                if (canShow) {
-                    if (radioVisualizer != null && player != null) radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
+                if (radioVisualizer != null && player != null && canShow) {
+                    radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> {
                         if (bytes != null) getView().setAudioWave(bytes);
                     });
                 }
@@ -157,7 +160,8 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
     @Override
     public void onPause(Context context) {
         radioVisualizer.stop();
-        if (player != null) player.setPlayerCallbackListener(null);
+        dataBase.deleteListeners(dataBaseChangeListener, resultListener);
+        if (player != null) player.deletePlayerCallbackListener(playerCallbackListener);
         context.unbindService(radioServiceConnection);
         onDialogResultListener = null;
     }
@@ -176,7 +180,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     private class RadioServiceConnection implements ServiceConnection {
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            ((PlayerService.RadioBinder) binder).setPlayerCallbackListener(playerCallbackListener);
+            ((PlayerService.RadioBinder) binder).addPlayerCallbackListener(playerCallbackListener);
             player = ((PlayerService.RadioBinder) binder);
             if (getView() != null && player != null) {
                 radioVisualizer.setupVisualizerFxAndUI(player.getId(), bytes -> getView().setAudioWave(bytes));
