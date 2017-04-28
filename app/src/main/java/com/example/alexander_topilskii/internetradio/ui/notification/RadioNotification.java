@@ -10,7 +10,8 @@ import android.support.v4.app.TaskStackBuilder;
 
 import com.example.alexander_topilskii.internetradio.R;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
-import com.example.alexander_topilskii.internetradio.ui.activitys.MainPermissionActivity;
+import com.example.alexander_topilskii.internetradio.ui.activitys.login.LoginActivity;
+import com.example.alexander_topilskii.internetradio.ui.activitys.main.MainPermissionActivity;
 
 public class RadioNotification {
     private static final int PENDING_INTENT_CODE = 755;
@@ -36,7 +37,7 @@ public class RadioNotification {
         Intent resultIntent = new Intent(context, MainPermissionActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(MainPermissionActivity.class);
+        stackBuilder.addParentStack(LoginActivity.class);
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);

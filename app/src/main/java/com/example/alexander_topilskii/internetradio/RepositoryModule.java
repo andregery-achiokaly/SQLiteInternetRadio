@@ -1,9 +1,8 @@
-package com.example.alexander_topilskii.internetradio.models;
+package com.example.alexander_topilskii.internetradio;
 
 
 import android.app.Notification;
 
-import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseManager;
@@ -11,6 +10,7 @@ import com.example.alexander_topilskii.internetradio.models.database.sqldatabase
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.RadioPlayer;
 import com.example.alexander_topilskii.internetradio.models.player.interfaces.Player;
+import com.example.alexander_topilskii.internetradio.models.rest.RestApi;
 import com.example.alexander_topilskii.internetradio.models.vizualizer.RadioVisualizer;
 import com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification;
 
@@ -21,6 +21,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
 @Singleton
@@ -67,5 +69,19 @@ public class RepositoryModule {
     @Provides
     ExecutorService provideSingleThreadExecutor() {
         return Executors.newSingleThreadExecutor();
+    }
+
+    @Provides
+    Retrofit getRetrofit() {
+       return new Retrofit.Builder()
+                .baseUrl("http://achievements17.herokuapp.com")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    RestApi getRestApi(Retrofit retrofit){
+       return retrofit.create(RestApi.class);
     }
 }

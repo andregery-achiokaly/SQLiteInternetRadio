@@ -1,4 +1,4 @@
-package com.example.alexander_topilskii.internetradio.ui.activitys;
+package com.example.alexander_topilskii.internetradio.ui.activitys.main;
 
 
 import android.Manifest;

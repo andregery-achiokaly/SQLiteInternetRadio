@@ -1,10 +1,10 @@
 package com.example.alexander_topilskii.internetradio;
 
 
-import com.example.alexander_topilskii.internetradio.models.RepositoryModule;
 import com.example.alexander_topilskii.internetradio.models.database.sqldatabase.SqliteExecutorManager;
 import com.example.alexander_topilskii.internetradio.models.player.PlayerService;
 import com.example.alexander_topilskii.internetradio.presenters.BasePresenter;
+import com.example.alexander_topilskii.internetradio.presenters.LoginPresenter;
 
 import javax.inject.Singleton;
 
@@ -16,4 +16,5 @@ public interface AppComponent {
     void inject(PlayerService playerService);
     void inject(BasePresenter basePresenter);
     void inject(SqliteExecutorManager sqliteExecutorManager);
+    void inject(LoginPresenter loginPresenter);
 }

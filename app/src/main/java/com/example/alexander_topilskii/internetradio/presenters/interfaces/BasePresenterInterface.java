@@ -4,7 +4,7 @@ package com.example.alexander_topilskii.internetradio.presenters.interfaces;
 import android.content.Context;
 
 import com.example.alexander_topilskii.internetradio.models.database.Station;
-import com.example.alexander_topilskii.internetradio.ui.activitys.MainActivity;
+import com.example.alexander_topilskii.internetradio.ui.activitys.main.MainActivity;
 
 public interface BasePresenterInterface {
     void stationClick(Station station);

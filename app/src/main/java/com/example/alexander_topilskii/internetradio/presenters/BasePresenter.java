@@ -20,7 +20,7 @@ import com.example.alexander_topilskii.internetradio.models.player.interfaces.Pl
 import com.example.alexander_topilskii.internetradio.models.vizualizer.RadioVisualizer;
 import com.example.alexander_topilskii.internetradio.presenters.interfaces.BasePresenterInterface;
 import com.example.alexander_topilskii.internetradio.presenters.interfaces.OnChangeDialogResultListener;
-import com.example.alexander_topilskii.internetradio.ui.activitys.MainActivity;
+import com.example.alexander_topilskii.internetradio.ui.activitys.main.MainActivity;
 import com.example.alexander_topilskii.internetradio.ui.dialog.AddStationDialog;
 import com.example.alexander_topilskii.internetradio.ui.dialog.ChangeStationDialog;
 import com.example.alexander_topilskii.internetradio.ui.interfaces.BaseActivity;
