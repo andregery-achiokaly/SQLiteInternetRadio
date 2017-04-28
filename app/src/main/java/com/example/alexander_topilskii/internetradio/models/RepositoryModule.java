@@ -14,6 +14,9 @@ import com.example.alexander_topilskii.internetradio.models.player.interfaces.Pl
 import com.example.alexander_topilskii.internetradio.models.vizualizer.RadioVisualizer;
 import com.example.alexander_topilskii.internetradio.ui.notification.RadioNotification;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -42,7 +45,12 @@ public class RepositoryModule {
     @Provides
     @Singleton
     DataBaseManager provideDataBaseManager() {
-        return SqliteExecutorManager.getInstance(application);
+        return SqliteExecutorManager.getInstance();
+    }
+
+    @Provides
+    DataBaseChangedListener getDataBaseChangeListener(DataBaseManager dataBaseManager) {
+        return dataBaseManager::getStations;
     }
 
     @Provides
@@ -50,10 +58,14 @@ public class RepositoryModule {
         return new RadioNotification(application, "").getNotification();
     }
 
-
     @Provides
     @Singleton
     DataBase provideDataBase() {
         return new SQLDataBaseHelper(application);
+    }
+
+    @Provides
+    ExecutorService provideSingleThreadExecutor() {
+        return Executors.newSingleThreadExecutor();
     }
 }

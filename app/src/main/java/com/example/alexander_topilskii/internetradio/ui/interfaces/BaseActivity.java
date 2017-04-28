@@ -11,4 +11,8 @@ public interface BaseActivity extends MvpView {
     void setAudioWave(byte[] bytes);
     void changeState(State state);
     void changeState(State state, String message);
+    void showDialog(int id, String name, String source);
+
+    void shareRadio(String name, String source);
+
 }

@@ -5,6 +5,7 @@ import android.media.audiofx.Visualizer;
 public class RadioVisualizer {
     private Visualizer visualizer;
     private VisualizerListener visualizerListener;
+    private boolean canShow = false;
 
     public void setupVisualizerFxAndUI(int id, VisualizerListener visualizerListener) {
         this.visualizerListener = visualizerListener;
@@ -27,9 +28,13 @@ public class RadioVisualizer {
         }
     }
 
+    public void setCanShow(boolean canShow) {
+        this.canShow = canShow;
+    }
+
     private class AudioWaveDataCaptureListener implements Visualizer.OnDataCaptureListener {
         public void onWaveFormDataCapture(Visualizer visualizer, byte[] bytes, int samplingRate) {
-            if (visualizerListener != null) visualizerListener.updateVisualizer(bytes);
+            if (visualizerListener != null && canShow) visualizerListener.updateVisualizer(bytes);
         }
 
         @Override

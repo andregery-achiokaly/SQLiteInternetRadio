@@ -32,7 +32,7 @@ public class PlayerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Application.getComponent().injectPlayerService(this);
+        Application.getComponent().inject(this);
         startForeground(RadioNotification.ID, notification);
     }
 
@@ -65,8 +65,8 @@ public class PlayerService extends Service {
         public void addPlayerCallbackListener(PlayerCallbackListener listener) {
             playerCallbackListener = (id, state) -> {
                 notification = new RadioNotification(getApplicationContext(), state.toString()).getNotification();
-                NotificationManager mNotificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                mNotificationManager.notify(RadioNotification.ID, notification);
+                NotificationManager notificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(RadioNotification.ID, notification);
             };
 
             player.addPlayerCallbackListener(listener);

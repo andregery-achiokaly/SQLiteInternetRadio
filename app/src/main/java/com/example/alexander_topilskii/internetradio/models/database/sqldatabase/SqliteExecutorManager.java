@@ -1,10 +1,11 @@
 package com.example.alexander_topilskii.internetradio.models.database.sqldatabase;
 
 
-import android.content.Context;
 import android.database.Cursor;
 
+import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
+import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBase;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseChangedListener;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.DataBaseManager;
 import com.example.alexander_topilskii.internetradio.models.database.interfaces.ResultListener;
@@ -12,25 +13,28 @@ import com.example.alexander_topilskii.internetradio.models.database.interfaces.
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import javax.inject.Inject;
 
 public class SqliteExecutorManager implements DataBaseManager {
-    private ExecutorService executorService;
-    private SQLDataBaseHelper dataBaseHelper;
+    @Inject
+    ExecutorService executorService;
+    @Inject
+    DataBase dataBaseHelper;
+
     private List<DataBaseChangedListener> dataBaseChangedListenerList;
     private static SqliteExecutorManager sqliteExecutorManager;
     private List<ResultListener> resultListenerList;
 
-    public static SqliteExecutorManager getInstance(Context context) {
+    public static SqliteExecutorManager getInstance() {
         if (sqliteExecutorManager == null) {
-            sqliteExecutorManager = new SqliteExecutorManager(context.getApplicationContext());
+            sqliteExecutorManager = new SqliteExecutorManager();
             return sqliteExecutorManager;
         } else return sqliteExecutorManager;
     }
 
-    private SqliteExecutorManager(Context context) {
-        executorService = Executors.newSingleThreadExecutor();
-        dataBaseHelper = new SQLDataBaseHelper(context);
+    private SqliteExecutorManager() {
+        Application.getComponent().inject(this);
         dataBaseChangedListenerList = new LinkedList<>();
         resultListenerList = new LinkedList<>();
     }
