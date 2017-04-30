@@ -17,7 +17,7 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
     public static final String STATION_KEY_NAME = "KEY_NAME";
     public static final String STATION_KEY_SOURCE = "KEY_SOURCE";
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = SQLDataBaseHelper.class.getSimpleName();
     private SQLiteDatabase db;
 
@@ -82,6 +82,7 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public Cursor getStations() {
+        sleep();
         Cursor cursor = db.query(TABLE_STATIONS, null, null, null, null, null, null);
         if (cursor != null) {
             return cursor;
@@ -103,6 +104,7 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
 
     @Override
     public void addStation(String name, String source) {
+        sleep();
         ContentValues cv = new ContentValues();
         cv.put(STATION_KEY_IS_CURRENT, 0);
         cv.put(STATION_KEY_NAME, name);
@@ -147,5 +149,13 @@ public class SQLDataBaseHelper extends SQLiteOpenHelper implements DataBase {
     @Override
     public void closeDataBase() {
         db.close();
+    }
+
+    public void sleep() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
