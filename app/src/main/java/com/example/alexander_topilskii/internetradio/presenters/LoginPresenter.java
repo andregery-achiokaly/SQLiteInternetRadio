@@ -13,6 +13,7 @@ import com.example.alexander_topilskii.internetradio.models.rest.PostModel;
 import com.example.alexander_topilskii.internetradio.models.rest.RestApi;
 import com.example.alexander_topilskii.internetradio.presenters.interfaces.LoginPresenterInterface;
 import com.example.alexander_topilskii.internetradio.ui.activitys.main.MainActivity;
+import com.example.alexander_topilskii.internetradio.ui.activitys.main.MainPermissionActivity;
 import com.example.alexander_topilskii.internetradio.ui.interfaces.LoginActivityView;
 import com.hannesdorfmann.mosby.mvp.MvpBasePresenter;
 
@@ -99,7 +100,7 @@ public class LoginPresenter extends MvpBasePresenter<LoginActivityView> implemen
     public void checkAutinfication(final Activity activity) {
         boolean isAuthorization = getUser(IS_AUTHORIZATION, activity);
         if (isAuthorization) {
-            Intent intent = new Intent(activity, MainActivity.class);
+            Intent intent = new Intent(activity, MainPermissionActivity.class);
             activity.startActivity(intent);
             activity.finish();
         }

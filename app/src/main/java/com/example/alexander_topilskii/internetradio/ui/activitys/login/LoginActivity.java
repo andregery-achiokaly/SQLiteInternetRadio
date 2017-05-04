@@ -27,7 +27,7 @@ public class LoginActivity extends MvpActivity<LoginActivityView, LoginPresenter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
         ButterKnife.bind(this);
-        presenter.checkAutinfication(this);
+        getPresenter().checkAutinfication(this);
     }
 
     @OnClick(R.id.login_btn)

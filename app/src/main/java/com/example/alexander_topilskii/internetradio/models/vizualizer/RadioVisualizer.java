@@ -34,7 +34,9 @@ public class RadioVisualizer {
 
     private class AudioWaveDataCaptureListener implements Visualizer.OnDataCaptureListener {
         public void onWaveFormDataCapture(Visualizer visualizer, byte[] bytes, int samplingRate) {
-            if (visualizerListener != null && canShow) visualizerListener.updateVisualizer(bytes);
+            if (visualizerListener != null && canShow) {
+                visualizerListener.updateVisualizer(bytes);
+            }
         }
 
         @Override

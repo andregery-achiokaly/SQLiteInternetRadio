@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.alexander_topilskii.internetradio.Application;
 import com.example.alexander_topilskii.internetradio.models.database.Station;
@@ -155,6 +156,7 @@ public class BasePresenter extends MvpBasePresenter<BaseActivity> implements Bas
 
     @Override
     public void setCanShowVizualizer(boolean canShow) {
+        Log.v("GGG", "cc " + canShow);
         radioVisualizer.setCanShow(canShow);
     }
 
